@@ -1,12 +1,30 @@
 import time
+import subprocess
 
 def menu():
     print("Hello There!")
     
     minutes = get_minutes()
+    display_notification(["notify-send","-u", "critical","⏰ Timer - session start",f"Timer set to {minutes}:00 minutes.\nStarting session now! "])
     timer(minutes) 
+    display_notification(["notify-send","-u", "critical","⏰ Timer","Time is up!"])
 
+def display_notification(info_list):
+    """Dependency required: libnotify-bin"""
+    subprocess.run(info_list)
 
+def assert_dependencies(title, message):
+    """Dependency required: libnotify-bin"""
+    try:
+        subprocess.run(
+            ["notify-send", title, message],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return False
+    return True
 
 def minutes_input():
     return input("Enter minutes for work-session: ")
@@ -39,5 +57,6 @@ def timer(minutes):
 
 
 if __name__ == "__main__":
-    menu()
+    if assert_dependencies("Initializing Timer","Hello There!"):
+        menu()
 
